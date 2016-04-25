@@ -230,9 +230,9 @@ def write_requires(s, spec, previous_packages=None, prev_deps=None, isSrv=False)
     if previous_packages is None:
         s.write('"use strict";')
         s.newline()
-        s.write('let _serializer = require(\'../../../base_serialize.js\');')
-        s.write('let _deserializer = require(\'../../../base_deserialize.js\');')
-        s.write('let _finder = require(\'../../../find.js\');')
+        s.write('let _serializer = require(\'base_serialize\');')
+        s.write('let _deserializer = require(\'base_deserialize\');')
+        s.write('let _finder = require(\'find\');')
         previous_packages = {}
     if prev_deps is None:
         prev_deps = []
@@ -247,9 +247,9 @@ def write_requires(s, spec, previous_packages=None, prev_deps=None, isSrv=False)
     # so that we don't create a circular requires dependency
     for dep in local_deps:
         if isSrv:
-            s.write('let {} = require(\'../msg/{}.js\');'.format(dep, dep))
+            s.write('let {} = require(\'../msg/{}.msg\');'.format(dep, dep))
         else:
-            s.write('let {} = require(\'./{}.js\');'.format(dep, dep))
+            s.write('let {} = require(\'./{}.msg\');'.format(dep, dep))
 
     # filter out previously found packages
     found_packages = {key: val for (key, val) in found_packages.items() if key not in previous_packages}
@@ -487,7 +487,7 @@ def write_ros_datatype(s, spec):
         s.newline()
 
 def write_md5sum(s, msg_context, spec, parent=None):
-    md5sum = genmsg.compute_md5(msg_context, parent or spec)
+    md5sum = 'TODO' #genmsg.compute_md5(msg_context, parent or spec)
     with Indent(s):
         s.write('static md5sum() {')
         with Indent(s):
@@ -502,7 +502,7 @@ def write_message_definition(s, msg_context, spec):
         s.write('static messageDefinition() {')
         with Indent(s):
             s.write('// Returns full string definition for message')
-            definition = genmsg.compute_full_text(msg_context, spec)
+            definition = '' #genmsg.compute_full_text(msg_context, spec)
             lines = definition.split('\n')
             s.write('return `')
             for line in lines:
@@ -568,7 +568,7 @@ def generate_srv(pkg, files, out_dir, search_path):
         spec = genmsg.msg_loader.load_srv_from_file(msg_context, f, full_type)
         generate_srv_from_spec(msg_context, spec, search_path, out_dir, pkg, f)
 
-def msg_list(pkg, search_path, ext):
+def msg_list(pkg, search_path, ext):  
     dir_list = search_path[pkg]
     files = []
     for d in dir_list:
@@ -582,7 +582,8 @@ def generate_msg_from_spec(msg_context, spec, search_path, output_dir, package, 
     @param msg_path: The path to the .msg file
     @type msg_path: str
     """
-    genmsg.msg_loader.load_depends(msg_context, spec, search_path)
+    print >> sys.stderr, ['load_depends', msg_context, spec, search_path]
+    #    genmsg.msg_loader.load_depends(msg_context, spec, search_path)
     spec.actual_name=spec.short_name
     spec.component_type='message'
     msgs = msg_list(package, search_path, '.msg')
